@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { decrement, increment, setValue, selectCount } from '@/lib/features/count/counterSlice';
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
+import { decrement, increment, setValue, selectCount } from '@/lib/redux/features/count/counterSlice';
 
 export const Counter = () => {
   const dispatch = useAppDispatch();
