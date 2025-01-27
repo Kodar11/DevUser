@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -17,7 +15,7 @@ type Post = {
   id: number;
   problemTitle: string;
   description: string;
-  upvote: number;
+  upvoteCount: number; // Make sure upvoteCount is reflected in the post
   author: {
     username: string;
   };
@@ -41,8 +39,15 @@ export default function HomePage() {
 
   const handleUpvote = async (postId: number) => {
     try {
-      await axios.post(`/api/posts/${postId}/upvote`);
-      fetchPosts(); // Refresh the posts
+      const response = await axios.post(`/api/posts/${postId}/upvote`);
+      // Update the upvote count directly after upvoting
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? { ...post, upvoteCount: response.data.upvoteCount }
+            : post
+        )
+      );
     } catch (error) {
       console.error("Error upvoting post:", error);
     }
@@ -78,7 +83,7 @@ export default function HomePage() {
               onClick={() => handleUpvote(post.id)}
               className="text-green-500 hover:text-green-700 font-semibold"
             >
-              Upvote ({post.upvote})
+              Upvote ({post.upvoteCount}) {/* Use upvoteCount */}
             </button>
           </div>
           <div className="mt-4">
