@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import axios from "axios";
 
 const SignupPage = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [role, setRole] = useState("USER"); // Default role is USER
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -16,8 +16,8 @@ const SignupPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password || !name) {
-      setError("Please fill in all fields");
+    if (!username || !email || !password) {
+      setError("Please fill in all required fields");
       return;
     }
 
@@ -25,20 +25,15 @@ const SignupPage = () => {
     setError("");
 
     try {
-      const res = await axios.post("/api/users", { email, password, name });
+      const res = await axios.post("/api/users", {
+        username,
+        email,
+        password,
+        role,
+      });
 
       if (res.status === 200) {
-        const loginRes = await signIn("credentials", {
-          redirect: false,
-          email,
-          password,
-        });
-
-        if (loginRes?.error) {
-          setError(loginRes.error);
-        } else {
-          router.push("/"); // Redirect to home or protected page
-        }
+        router.push("/api/auth/login"); // Redirect to login page after successful signup
       } else {
         setError(res.data.error || "Something went wrong");
       }
@@ -61,14 +56,14 @@ const SignupPage = () => {
         {error && <div className="text-red-500 mb-4">{error}</div>}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2" htmlFor="name">
-            Name
+          <label className="block text-sm font-medium mb-2" htmlFor="username">
+            Username
           </label>
           <input
             type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
             className="w-full p-2 border border-gray-300 rounded-md"
           />
@@ -88,7 +83,7 @@ const SignupPage = () => {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block text-sm font-medium mb-2" htmlFor="password">
             Password
           </label>
@@ -102,6 +97,21 @@ const SignupPage = () => {
           />
         </div>
 
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2" htmlFor="role">
+            Role
+          </label>
+          <select
+            id="role"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          >
+            <option value="USER">User</option>
+            <option value="DEVELOPER">Developer</option>
+          </select>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -109,6 +119,7 @@ const SignupPage = () => {
         >
           {loading ? "Signing up..." : "Sign Up"}
         </button>
+
         <p className="text-center mt-4">
           Already have an account?{" "}
           <button

@@ -1,15 +1,66 @@
-datasource db {
-  provider = "postgresql" // Use "mysql" or "sqlite" if applicable
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql" // Change this if you're using another database
+  url      = env("DATABASE_URL")
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String  
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  posts     Post[]
+  Comment   Comment[]
+}
+
+model Post {
+  id           Int       @id @default(autoincrement())
+  problemTitle String    @unique
+  description  String
+  upvote       Int       @default(0)
+  comments     Comment[]
+  tags         Tag[]     // Use the enum for predefined tags
+  status       Status    @default(OPEN)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  author       User      @relation(fields: [authorId], references: [id])
+  authorId     Int
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  content     String
+  likes       Int      @default(0)
+  dislikes    Int      @default(0)
+  post        Post     @relation(fields: [postId], references: [id])
+  postId      Int
+  commenter   User     @relation(fields: [commenterId], references: [id])
+  commenterId Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  DEVELOPER
+  ADMIN
+}
+
+enum Status {
+  OPEN
+  SOLVED
+}
+
+enum Tag {
+  BUG
+  FEATURE_REQUEST
+  PERFORMANCE
+  UI
+  SECURITY
 }
