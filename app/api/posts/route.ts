@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma/userService"; // Adjust path as needed
+import { prisma } from "@/lib/prisma/userService";
 import { getServerSession } from "next-auth/next";
 import { NEXT_AUTH_CONFIG } from "@/lib/nextAuthConfig"; // Adjust path as needed
 
+// Create a new post
 export async function POST(req: Request) {
-
   const session = await getServerSession(NEXT_AUTH_CONFIG);
 
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-//@ts-ignore
+
+  //@ts-ignore
   const userId = session.user?.id;
   if (!userId) {
     return NextResponse.json({ error: "User ID not found in session" }, { status: 401 });
@@ -27,7 +28,6 @@ export async function POST(req: Request) {
   }
 
   try {
-
     const problem = await prisma.post.create({
       data: {
         problemTitle,
@@ -51,25 +51,35 @@ export async function POST(req: Request) {
   }
 }
 
-
+// Fetch all posts with comments and child comments
 export async function GET(req: Request) {
-    try {
-      const posts = await prisma.post.findMany({
-        include: {
-          author: {
-            select: { id: true, username: true },
-          },
-          comments: {
-            select: { id: true, content: true, likes: true, dislikes: true, commenter: { select: { username: true } } },
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        author: {
+          select: { id: true, username: true },
+        },
+        comments: {
+          include: {
+            commenter: {
+              select: { id: true, username: true },
+            },
+            childComments: {
+              include: {
+                commenter: {
+                  select: { id: true, username: true },
+                },
+              },
+            },
           },
         },
-        orderBy: { createdAt: "desc" },
-      });
-  
-      return NextResponse.json({ posts }, { status: 200 });
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
-    }
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json({ posts }, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
   }
-  
+}

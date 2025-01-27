@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+type ChildComment = {
+  id: number;
+  content: string;
+  commenter: {
+    username: string;
+  };
+};
+
 type Comment = {
   id: number;
   content: string;
@@ -9,13 +17,14 @@ type Comment = {
   commenter: {
     username: string;
   };
+  childComments: ChildComment[];
 };
 
 type Post = {
   id: number;
   problemTitle: string;
   description: string;
-  upvoteCount: number; // Make sure upvoteCount is reflected in the post
+  upvoteCount: number;
   author: {
     username: string;
   };
@@ -37,28 +46,28 @@ export default function HomePage() {
     }
   };
 
-  const handleUpvote = async (postId: number) => {
+  const handleAddComment = async (id: number, content: string) => {
     try {
-      const response = await axios.post(`/api/posts/${postId}/upvote`);
-      // Update the upvote count directly after upvoting
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === postId
-            ? { ...post, upvoteCount: response.data.upvoteCount }
-            : post
-        )
-      );
+      console.log("Post Id : ",id);
+      console.log("Content : ",content);
+      
+      await axios.post(`/api/posts/${id}/comment`, { content });
+      fetchPosts();
     } catch (error) {
-      console.error("Error upvoting post:", error);
+      console.error("Error adding comment:", error);
     }
   };
 
-  const handleAddComment = async (postId: number, content: string) => {
+  const handleAddChildComment = async (
+    postId: number,
+    parentCommentId: number,
+    content: string
+  ) => {
     try {
-      await axios.post(`/api/posts/${postId}/comment`, { content });
-      fetchPosts(); // Refresh the posts
+      await axios.post(`/api/posts/${postId}/comment/${parentCommentId}`, { content });
+      fetchPosts();
     } catch (error) {
-      console.error("Error adding comment:", error);
+      console.error("Error adding child comment:", error);
     }
   };
 
@@ -78,43 +87,53 @@ export default function HomePage() {
           <h2 className="text-xl font-semibold">{post.problemTitle}</h2>
           <p className="text-gray-700 mb-2">{post.description}</p>
           <p className="text-sm text-gray-500">Posted by: {post.author.username}</p>
-          <div className="flex items-center gap-4 mt-2">
-            <button
-              onClick={() => handleUpvote(post.id)}
-              className="text-green-500 hover:text-green-700 font-semibold"
-            >
-              Upvote ({post.upvoteCount}) {/* Use upvoteCount */}
-            </button>
-          </div>
+
           <div className="mt-4">
             <h3 className="text-lg font-medium">Comments</h3>
             <ul className="list-disc pl-5">
               {post.comments.map((comment) => (
-                <li key={comment.id} className="mt-1">
+                <li key={comment.id} className="mt-2">
                   <strong>{comment.commenter.username}:</strong> {comment.content}
-                  <span className="ml-2 text-sm text-gray-500">
-                    ({comment.likes} likes, {comment.dislikes} dislikes)
-                  </span>
+                  <ul className="list-disc pl-5 mt-2">
+                    {comment.childComments.map((child) => (
+                      <li key={child.id}>
+                        <strong>{child.commenter.username}:</strong> {child.content}
+                      </li>
+                    ))}
+                  </ul>
+                  <textarea
+                    placeholder="Reply to this comment..."
+                    className="w-full border p-2 rounded mt-2"
+                    rows={2}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        const content = e.currentTarget.value.trim();
+                        if (content) {
+                          handleAddChildComment(post.id, comment.id, content);
+                          e.currentTarget.value = "";
+                        }
+                      }
+                    }}
+                  ></textarea>
                 </li>
               ))}
             </ul>
-            <div className="mt-2">
-              <textarea
-                placeholder="Add a comment..."
-                className="w-full border p-2 rounded"
-                rows={2}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    const content = e.currentTarget.value.trim();
-                    if (content) {
-                      handleAddComment(post.id, content);
-                      e.currentTarget.value = "";
-                    }
+            <textarea
+              placeholder="Add a comment..."
+              className="w-full border p-2 rounded mt-4"
+              rows={2}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  const content = e.currentTarget.value.trim();
+                  if (content) {
+                    handleAddComment(post.id, content);
+                    e.currentTarget.value = "";
                   }
-                }}
-              ></textarea>
-            </div>
+                }
+              }}
+            ></textarea>
           </div>
         </div>
       ))}

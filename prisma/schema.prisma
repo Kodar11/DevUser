@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  email     String    @unique
-  password  String
-  role      Role      @default(USER)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  posts     Post[]
-  Comment   Comment[]
+  id           Int            @id @default(autoincrement())
+  username     String         @unique
+  email        String         @unique
+  password     String
+  role         Role           @default(USER)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  posts        Post[]
+  Comment      Comment[]
+  ChildComment ChildComment[]
 }
 
 model Post {
@@ -24,9 +25,9 @@ model Post {
   problemTitle String    @unique
   description  String
   upvoteCount  Int       @default(0)
-  userUpvotes  Int[]     // Array of user IDs who have upvoted the post
+  userUpvotes  Int[] // Array of user IDs who have upvoted the post
   comments     Comment[]
-  tags         Tag[]     // Use the enum for predefined tags
+  tags         Tag[] // Use the enum for predefined tags
   status       Status    @default(OPEN)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
@@ -34,14 +35,27 @@ model Post {
   authorId     Int
 }
 
-
 model Comment {
+  id            Int            @id @default(autoincrement())
+  content       String
+  likes         Int            @default(0)
+  dislikes      Int            @default(0)
+  post          Post           @relation(fields: [postId], references: [id])
+  postId        Int
+  commenter     User           @relation(fields: [commenterId], references: [id])
+  commenterId   Int
+  childComments ChildComment[] // Relation to child comments
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model ChildComment {
   id          Int      @id @default(autoincrement())
   content     String
   likes       Int      @default(0)
   dislikes    Int      @default(0)
-  post        Post     @relation(fields: [postId], references: [id])
-  postId      Int
+  parent      Comment  @relation(fields: [parentId], references: [id])
+  parentId    Int
   commenter   User     @relation(fields: [commenterId], references: [id])
   commenterId Int
   createdAt   DateTime @default(now())
