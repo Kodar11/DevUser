@@ -48,9 +48,6 @@ export default function HomePage() {
 
   const handleAddComment = async (id: number, content: string) => {
     try {
-      console.log("Post Id : ",id);
-      console.log("Content : ",content);
-      
       await axios.post(`/api/posts/${id}/comment`, { content });
       fetchPosts();
     } catch (error) {
@@ -71,6 +68,16 @@ export default function HomePage() {
     }
   };
 
+  const handleUpvote = async (postId: number) => {
+    try {
+      const { data } = await axios.post(`/api/posts/${postId}/upvote`);
+      console.log("Upvote successful:", data);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error upvoting post:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -87,6 +94,15 @@ export default function HomePage() {
           <h2 className="text-xl font-semibold">{post.problemTitle}</h2>
           <p className="text-gray-700 mb-2">{post.description}</p>
           <p className="text-sm text-gray-500">Posted by: {post.author.username}</p>
+          <div className="flex items-center mt-4">
+            <button
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 mr-2"
+              onClick={() => handleUpvote(post.id)}
+            >
+              Upvote
+            </button>
+            <span>{post.upvoteCount} Upvotes</span>
+          </div>
 
           <div className="mt-4">
             <h3 className="text-lg font-medium">Comments</h3>
