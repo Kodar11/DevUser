@@ -71,10 +71,29 @@ export default function HomePage() {
   const handleUpvote = async (postId: number) => {
     try {
       const { data } = await axios.post(`/api/posts/${postId}/upvote`);
-      console.log("Upvote successful:", data);
       fetchPosts();
     } catch (error) {
       console.error("Error upvoting post:", error);
+    }
+  };
+
+  // Function to handle Like
+  const handleLike = async (postId: number, commentId: number) => {
+    try {
+      await axios.post(`/api/posts/${postId}/comment/${commentId}/like`);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error liking comment:", error);
+    }
+  };
+
+  // Function to handle Dislike
+  const handleDislike = async (postId: number, commentId: number) => {
+    try {
+      await axios.post(`/api/posts/${postId}/comment/${commentId}/dislike`);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error disliking comment:", error);
     }
   };
 
@@ -109,7 +128,28 @@ export default function HomePage() {
             <ul className="list-disc pl-5">
               {post.comments.map((comment) => (
                 <li key={comment.id} className="mt-2">
-                  <strong>{comment.commenter.username}:</strong> {comment.content}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <strong>{comment.commenter.username}:</strong> {comment.content}
+                    </div>
+                    {/* Like and Dislike Buttons */}
+                    <div className="flex items-center space-x-2">
+                      <button
+                        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+                        onClick={() => handleLike(post.id, comment.id)}
+                      >
+                        👍 {comment.likes}
+                      </button>
+                      <button
+                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                        onClick={() => handleDislike(post.id, comment.id)}
+                      >
+                        👎 {comment.dislikes}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Child Comments */}
                   <ul className="list-disc pl-5 mt-2">
                     {comment.childComments.map((child) => (
                       <li key={child.id}>
@@ -117,6 +157,8 @@ export default function HomePage() {
                       </li>
                     ))}
                   </ul>
+
+                  {/* Add Child Comment Input */}
                   <textarea
                     placeholder="Reply to this comment..."
                     className="w-full border p-2 rounded mt-2"
@@ -135,6 +177,8 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
+
+            {/* Add Parent Comment Input */}
             <textarea
               placeholder="Add a comment..."
               className="w-full border p-2 rounded mt-4"
