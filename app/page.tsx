@@ -14,6 +14,23 @@ export default function Home() {
       {/* <Counter /> */}
       <AddProblem/>
       <HomePage/>
+
     </main>
   );
 }
+
+// my file structure 
+// api 
+//  - posts
+//         - route.ts
+//         - [id]
+//                - comment
+//                         -route.ts
+//                         - [commentId]
+//                               - route.ts
+//                               - like
+//                                   -route.ts
+//                               - dislike
+//                                   - route.ts
+//                - upvote
+//                         - route.ts

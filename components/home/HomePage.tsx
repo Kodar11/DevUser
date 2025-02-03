@@ -1,5 +1,7 @@
+"use client"
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 type ChildComment = {
   id: number;
@@ -20,6 +22,13 @@ type Comment = {
   childComments: ChildComment[];
 };
 
+type Solution = {
+  id: number;
+  solutionText: string;
+  solutionLink?: string;
+  confidenceScore: number;
+};
+
 type Post = {
   id: number;
   problemTitle: string;
@@ -29,6 +38,7 @@ type Post = {
     username: string;
   };
   comments: Comment[];
+  Solution: Solution[];
 };
 
 export default function HomePage() {
@@ -38,7 +48,8 @@ export default function HomePage() {
   const fetchPosts = async () => {
     try {
       const { data } = await axios.get("/api/posts");
-      setPosts(data.posts);
+      setPosts(data.posts || []);
+
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
@@ -77,7 +88,6 @@ export default function HomePage() {
     }
   };
 
-  // Function to handle Like
   const handleLike = async (postId: number, commentId: number) => {
     try {
       await axios.post(`/api/posts/${postId}/comment/${commentId}/like`);
@@ -87,7 +97,6 @@ export default function HomePage() {
     }
   };
 
-  // Function to handle Dislike
   const handleDislike = async (postId: number, commentId: number) => {
     try {
       await axios.post(`/api/posts/${postId}/comment/${commentId}/dislike`);
@@ -96,6 +105,8 @@ export default function HomePage() {
       console.error("Error disliking comment:", error);
     }
   };
+
+
 
   useEffect(() => {
     fetchPosts();
@@ -122,6 +133,41 @@ export default function HomePage() {
             </button>
             <span>{post.upvoteCount} Upvotes</span>
           </div>
+
+          {/* Add Solution Button */}
+          <Link href={`/addsolution?id=${post.id}`}>
+            <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mt-2">
+              Add Solution
+            </button>
+          </Link>
+
+          {/* Display Solutions */}
+          <div className="mt-4">
+            <h3 className="text-lg font-medium">Solutions</h3>
+            {post.Solution && post.Solution.length > 0  ? (
+              <ul className="list-disc pl-5">
+                {post.Solution.map((solution) => (
+                  <li key={solution.id} className="mt-2">
+                    <p>{solution.solutionText}</p>
+                    {solution.solutionLink && (
+                      <Link
+                        href={solution.solutionLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        View Solution
+                      </Link> 
+                    )}
+                    <p className="text-sm text-gray-500">Confidence Score: {solution.confidenceScore}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500">No solutions available yet.</p>
+            )}
+          </div>
+
 
           <div className="mt-4">
             <h3 className="text-lg font-medium">Comments</h3>

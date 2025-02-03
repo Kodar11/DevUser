@@ -1,7 +1,15 @@
+// "use client"
 import './globals.css';
 import { Inter } from 'next/font/google';
-import  StoreProvider  from "./StoreProvider";
+import StoreProvider from "./StoreProvider";
 import type { ReactNode } from "react";
+// import { usePathname } from 'next/navigation';
+// import Link from 'next/link';
+
+const navLinks = [
+  { name: "Home", href: "/" },
+  { name: "Solutions ", href: "/addsolution" }
+]
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,15 +23,26 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+  // const pathname = usePathname()
   return (
     <StoreProvider>
-    <html lang="en">
-      <body className={inter.className}>
-        {children}
-      </body>
-    </html>
+      <html lang="en">
+        <body className={inter.className}>
+          {/* {navLinks.map((link) => {
+            const isActive = pathname.startsWith(link.href)
+            return (
+              <Link href={link.href} key={link.name}
+              className={isActive ? "font-bold mr-4 ":"text-blue-500 mr-4"}>
+                {link.name}
+              </Link>
+            )
+          })} */}
+          {children}
+        </body>
+      </html>
     </StoreProvider>
-      
+
   );
 }
 

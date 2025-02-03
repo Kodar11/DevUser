@@ -62,7 +62,7 @@ const AddProblem = () => {
         tags: [],
         status: "OPEN",
       });
-      router.push("/problems");
+      router.push("/");
     } catch (err: any) {
       setError(err.response?.data?.error || "An error occurred while creating the problem.");
     } finally {

@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   }
 }
 
-// Fetch all posts with comments and child comments
+// Fetch all posts with comments, child comments, and solutions
 export async function GET(req: Request) {
   try {
     const posts = await prisma.post.findMany({
@@ -70,6 +70,14 @@ export async function GET(req: Request) {
                   select: { id: true, username: true },
                 },
               },
+            },
+          },
+        },
+        Solution: { // Adjusted to match the correct property name
+          orderBy: { confidenceScore: "desc" },
+          include: {
+            submittedBy: {
+              select: { id: true, username: true },
             },
           },
         },

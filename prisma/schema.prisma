@@ -18,21 +18,23 @@ model User {
   posts        Post[]
   Comment      Comment[]
   ChildComment ChildComment[]
+  Solution     Solution[]
 }
 
 model Post {
-  id           Int       @id @default(autoincrement())
-  problemTitle String    @unique
+  id           Int        @id @default(autoincrement())
+  problemTitle String     @unique
   description  String
-  upvoteCount  Int       @default(0)
+  upvoteCount  Int        @default(0)
   userUpvotes  Int[] // Array of user IDs who have upvoted the post
   comments     Comment[]
   tags         Tag[] // Use the enum for predefined tags
-  status       Status    @default(OPEN)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  author       User      @relation(fields: [authorId], references: [id])
+  status       Status     @default(OPEN)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  author       User       @relation(fields: [authorId], references: [id])
   authorId     Int
+  Solution     Solution[]
 }
 
 model Comment {
@@ -40,8 +42,8 @@ model Comment {
   content       String
   likes         Int            @default(0)
   dislikes      Int            @default(0)
-  userLikes     Int[]          // Array of user IDs who have liked the comment
-  userDislikes  Int[]          // Array of user IDs who have disliked the comment
+  userLikes     Int[] // Array of user IDs who have liked the comment
+  userDislikes  Int[] // Array of user IDs who have disliked the comment
   post          Post           @relation(fields: [postId], references: [id])
   postId        Int
   commenter     User           @relation(fields: [commenterId], references: [id])
@@ -52,20 +54,41 @@ model Comment {
 }
 
 model ChildComment {
-  id          Int      @id @default(autoincrement())
-  content     String
-  likes       Int      @default(0)
-  dislikes    Int      @default(0)
-  userLikes   Int[]    // Array of user IDs who have liked the child comment
-  userDislikes Int[]   // Array of user IDs who have disliked the child comment
-  parent      Comment  @relation(fields: [parentId], references: [id])
-  parentId    Int
-  commenter   User     @relation(fields: [commenterId], references: [id])
-  commenterId Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  content      String
+  likes        Int      @default(0)
+  dislikes     Int      @default(0)
+  userLikes    Int[] // Array of user IDs who have liked the child comment
+  userDislikes Int[] // Array of user IDs who have disliked the child comment
+  parent       Comment  @relation(fields: [parentId], references: [id])
+  parentId     Int
+  commenter    User     @relation(fields: [commenterId], references: [id])
+  commenterId  Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
+model Solution {
+  id              Int                @id @default(autoincrement())
+  post            Post               @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId          Int
+  sourceType      SolutionSourceType // "web_scraped", "user_submitted", "LLM_generated"
+  solutionText    String
+  solutionLink    String? // Optional, for external links like GitHub or Medium
+  confidenceScore Float              @default(0.0) // Used for ranking, can be adjusted dynamically
+  upvotes         Int                @default(0) // Users can upvote solutions
+  createdAt       DateTime           @default(now())
+  submittedBy     User?              @relation(fields: [submittedById], references: [id]) // Only for user-submitted solutions
+  submittedById   Int? // Nullable because web-scraped & AI solutions don’t have a user
+
+  @@unique([postId, solutionLink]) // Ensures no duplicate links for the same post
+}
+
+enum SolutionSourceType {
+  WEB_SCRAPED
+  USER_SUBMITTED
+  LLM_GENERATED
+}
 
 enum Role {
   USER
