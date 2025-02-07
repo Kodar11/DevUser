@@ -4,7 +4,6 @@ import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { prisma } from "@/lib/prisma/userService"; // Adjust the path as needed
 
 interface CustomUser extends User {
   id: string;
