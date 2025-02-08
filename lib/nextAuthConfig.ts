@@ -1,9 +1,9 @@
 import type { NextAuthOptions, User } from "next-auth";
-import type { AdapterUser } from "next-auth/adapters";
-import type { JWT } from "next-auth/jwt";
-import type { Session } from "next-auth";
+
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { prisma } from "@/lib/prisma/userService";
+
 
 interface CustomUser extends User {
   id: string;
@@ -37,7 +37,7 @@ export const NEXT_AUTH_CONFIG: NextAuthOptions = {
             throw new Error("Invalid password");
           }
 
-          return { id: user.id.toString(), username: user.username, email: user.email };
+          return { id: user.id.toString(), username: user.username, email: user.email, role: user.role };
         } catch (error: any) {
           console.error("Authorization error:", error.message);
           throw error;
@@ -53,6 +53,8 @@ export const NEXT_AUTH_CONFIG: NextAuthOptions = {
         //@ts-ignore
         token.username = user.username;
         token.email = user.email;
+        //@ts-ignore
+        token.role = user.role;  // ✅ Add role here
       }
       return token;
     },
@@ -63,9 +65,12 @@ export const NEXT_AUTH_CONFIG: NextAuthOptions = {
         //@ts-ignore
         session.user.username = token.username;
         session.user.email = token.email;
+        //@ts-ignore
+        session.user.role = token.role;  // ✅ Add role here
       }
       return session;
-    },
+    }
+    ,
   },
   pages: {
     signIn: "/api/auth/login", // Custom login page

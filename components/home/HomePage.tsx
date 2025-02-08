@@ -134,6 +134,20 @@ export default function HomePage() {
             <span>{post.upvoteCount} Upvotes</span>
           </div>
 
+
+          <div className="flex space-x-2 mt-4">
+            <Link href={`/createform?postId=${post.id}`}>
+              <button className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600">
+                Create Form
+              </button>
+            </Link>
+            <Link href={`/formlist?postId=${post.id}`}>
+              <button className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600">
+                Answer Form
+              </button>
+            </Link>
+          </div>
+
           {/* Add Solution Button */}
           <Link href={`/addsolution?id=${post.id}`}>
             <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mt-2">
@@ -245,4 +259,4 @@ export default function HomePage() {
       ))}
     </div>
   );
-}
+} 

@@ -8,33 +8,36 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  username     String         @unique
-  email        String         @unique
-  password     String
-  role         Role           @default(USER)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  posts        Post[]
-  Comment      Comment[]
-  ChildComment ChildComment[]
-  Solution     Solution[]
+  id              Int               @id @default(autoincrement())
+  username        String            @unique
+  email           String            @unique
+  password        String
+  role            Role              @default(USER)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  posts           Post[]
+  Comment         Comment[]
+  ChildComment    ChildComment[]
+  Solution        Solution[]
+  RequirementForm RequirementForm[]
+  Response        Response[]
 }
 
 model Post {
-  id           Int        @id @default(autoincrement())
-  problemTitle String     @unique
-  description  String
-  upvoteCount  Int        @default(0)
-  userUpvotes  Int[] // Array of user IDs who have upvoted the post
-  comments     Comment[]
-  tags         Tag[] // Use the enum for predefined tags
-  status       Status     @default(OPEN)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  author       User       @relation(fields: [authorId], references: [id])
-  authorId     Int
-  Solution     Solution[]
+  id              Int               @id @default(autoincrement())
+  problemTitle    String            @unique
+  description     String
+  upvoteCount     Int               @default(0)
+  userUpvotes     Int[] // Array of user IDs who have upvoted the post
+  comments        Comment[]
+  tags            Tag[] // Use the enum for predefined tags
+  status          Status            @default(OPEN)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  author          User              @relation(fields: [authorId], references: [id])
+  authorId        Int
+  Solution        Solution[]
+  RequirementForm RequirementForm[]
 }
 
 model Comment {
@@ -82,6 +85,45 @@ model Solution {
   submittedById   Int? // Nullable because web-scraped & AI solutions don’t have a user
 
   @@unique([postId, solutionLink]) // Ensures no duplicate links for the same post
+}
+
+model RequirementForm {
+  id        Int        @id @default(autoincrement())
+  title     String     // ✅ Added title field
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+  creator   User       @relation(fields: [creatorId], references: [id]) // Only a Developer
+  creatorId Int
+  questions Question[]
+  createdAt DateTime   @default(now())
+  Response  Response[]
+}
+
+
+model Question {
+  id           Int             @id @default(autoincrement())
+  form         RequirementForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+  formId       Int
+  questionText String
+  type         QuestionType
+  choices      String[]        @default([]) // Always an array, default empty for TEXT type
+  responses    Response[]
+}
+
+model Response {
+  id         Int             @id @default(autoincrement())
+  userId     Int
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId Int
+  question   Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer     String
+  formId     Int
+  form       RequirementForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+}
+
+enum QuestionType {
+  TEXT
+  MULTIPLE_CHOICE
 }
 
 enum SolutionSourceType {
