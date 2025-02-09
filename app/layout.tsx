@@ -3,6 +3,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import StoreProvider from "./StoreProvider";
 import type { ReactNode } from "react";
+import { Appbar } from "@/components/appbar/Appbar";
 // import { usePathname } from 'next/navigation';
 // import Link from 'next/link';
 
@@ -29,15 +30,7 @@ export default function RootLayout({
     <StoreProvider>
       <html lang="en">
         <body className={inter.className}>
-          {/* {navLinks.map((link) => {
-            const isActive = pathname.startsWith(link.href)
-            return (
-              <Link href={link.href} key={link.name}
-              className={isActive ? "font-bold mr-4 ":"text-blue-500 mr-4"}>
-                {link.name}
-              </Link>
-            )
-          })} */}
+          <Appbar/>
           {children}
         </body>
       </html>

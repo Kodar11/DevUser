@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma/userService";
 import { getServerSession } from "next-auth/next";
 import { NEXT_AUTH_CONFIG } from "@/lib/nextAuthConfig";
 
-export async function GET(req: Request) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
-    console.log("🔹 API Request Received: GET /api/developer/forms");
+    console.log(`🔹 API Request Received: GET /api/developer/${params.id}`);
 
     // ✅ Fetch session
     const session = await getServerSession(NEXT_AUTH_CONFIG);
@@ -26,11 +26,17 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Invalid developer ID" }, { status: 400 });
     }
 
-    console.log(`📌 Fetching forms created by Developer ID: ${developerId}`);
+    const formId = parseInt(params.id);
+    if (isNaN(formId)) {
+      console.error("⛔ Invalid Form ID:", params.id);
+      return NextResponse.json({ error: "Invalid form ID" }, { status: 400 });
+    }
 
-    // ✅ Fetch all forms created by the developer, including responses
-    const forms = await prisma.requirementForm.findMany({
-      where: { creatorId: developerId },
+    console.log(`📌 Fetching form ID: ${formId} created by Developer ID: ${developerId}`);
+
+    // ✅ Fetch the specific form with its responses
+    const form = await prisma.requirementForm.findUnique({
+      where: { id: formId, creatorId: developerId },
       select: {
         id: true,
         title: true,
@@ -57,16 +63,20 @@ export async function GET(req: Request) {
           },
         },
       },
-      orderBy: { createdAt: "desc" },
     });
 
-    console.log(`✅ Found ${forms.length} Forms for Developer ID ${developerId}`);
+    if (!form) {
+      console.error("🚫 Form Not Found or Unauthorized");
+      return NextResponse.json({ error: "Form not found or unauthorized" }, { status: 404 });
+    }
 
-    return NextResponse.json({ forms }, { status: 200 });
+    console.log(`✅ Form ID ${formId} retrieved successfully`);
+
+    return NextResponse.json({ form }, { status: 200 });
   } catch (error) {
-    console.error("🚨 Error Fetching Developer Forms & Responses:", error);
+    console.error("🚨 Error Fetching Form Details:", error);
     return NextResponse.json(
-      { error: "Failed to fetch developer forms." },
+      { error: "Failed to fetch form details." },
       { status: 500 }
     );
   }
