@@ -3,9 +3,13 @@ import { prisma } from "@/lib/prisma/userService";
 import { getServerSession } from "next-auth/next";
 import { NEXT_AUTH_CONFIG } from "@/lib/nextAuthConfig";
 
-export async function GET() {
+interface Params {
+  id: string;
+}
+
+export async function GET(req: Request, { params }: { params: Params }) {
   try {
-    console.log("🔹 API Request Received: GET /api/developer/forms");
+    console.log("🔹 API Request Received: GET /api/developer/[id]");
 
     // ✅ Fetch session
     const session = await getServerSession(NEXT_AUTH_CONFIG);
@@ -61,7 +65,7 @@ export async function GET() {
     console.log(`✅ Found ${forms.length} Forms for Developer ID ${developerId}`);
 
     return NextResponse.json({ forms }, { status: 200 });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("🚨 Error Fetching Developer Forms & Responses:", error);
     return NextResponse.json(
       { error: "Failed to fetch developer forms." },

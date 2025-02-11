@@ -28,7 +28,7 @@ export async function POST(req: Request, { params }: { params: { id: string; com
       data: {
         content,
         parentId,
-        commenterId: parseInt(userId, 10),
+        commenterId: userId,
       },
     });
 
