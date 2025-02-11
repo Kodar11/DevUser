@@ -49,11 +49,9 @@ export const UsersCrud = () => {
     try {
       await deleteUser(userId).unwrap();
       console.log("User deleted successfully.");
-    } catch (error:any) {
-      console.error("Error deleting user:", error);
-      if ("status" in error) {
-        console.error("Status:", error.status);
-        console.error("Data:", error.data);
+    } catch (error) {
+      if(error instanceof Error){
+        console.error("Error deleting user:", error.message);
       }
     }
   };

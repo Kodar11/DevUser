@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //@ts-ignore
+
     const userId = session.user?.id;
     if (!userId) {
       return NextResponse.json(
@@ -25,7 +25,7 @@ export async function POST(
     }
 
     // Ensure userId is treated as an integer
-    const userIdInt = parseInt(userId);
+    const userIdInt = userId;
 
     // Fetch the post with its upvotes
     const post = await prisma.post.findUnique({

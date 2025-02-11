@@ -4,13 +4,26 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 
+interface Question {
+    id: number;
+    questionText: string;
+    type: "TEXT" | "MULTIPLE_CHOICE";
+    choices?: string[];
+}
+
+interface Form {
+    id: number;
+    title: string;
+    questions: Question[];
+}
+
 export default function SubmitResponsePage() {
     const searchParams = useSearchParams();
     const formId = searchParams.get("formId");
     const postId = searchParams.get("postId");
     const router = useRouter();
 
-    const [form, setForm] = useState(null);
+    const [form, setForm] = useState<Form | null>(null);
     const [responses, setResponses] = useState<Record<number, string>>({});
 
     useEffect(() => {
@@ -55,37 +68,31 @@ export default function SubmitResponsePage() {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">{
-                //@ts-ignore
-
-                form.title}</h1>
-            {
-                //@ts-ignore
-
-                form.questions.map((question: { id: number; questionText: string; type: string; choices?: string[] }) => (
-                    <div key={question.id} className="mb-4">
-                        <label className="block font-semibold">{question.questionText}</label>
-                        {question.type === "TEXT" ? (
-                            <input
-                                type="text"
-                                value={responses[question.id] || ""}
-                                onChange={(e) => handleChange(question.id, e.target.value)}
-                                className="w-full p-2 border rounded mt-2"
-                            />
-                        ) : (
-                            <select
-                                value={responses[question.id] || ""}
-                                onChange={(e) => handleChange(question.id, e.target.value)}
-                                className="w-full p-2 border rounded mt-2"
-                            >
-                                <option value="">Select an option</option>
-                                {question.choices?.map((choice, index) => (
-                                    <option key={index} value={choice}>{choice}</option>
-                                ))}
-                            </select>
-                        )}
-                    </div>
-                ))}
+            <h1 className="text-2xl font-bold mb-4">{form.title}</h1>
+            {form.questions.map((question) => (
+                <div key={question.id} className="mb-4">
+                    <label className="block font-semibold">{question.questionText}</label>
+                    {question.type === "TEXT" ? (
+                        <input
+                            type="text"
+                            value={responses[question.id] || ""}
+                            onChange={(e) => handleChange(question.id, e.target.value)}
+                            className="w-full p-2 border rounded mt-2"
+                        />
+                    ) : (
+                        <select
+                            value={responses[question.id] || ""}
+                            onChange={(e) => handleChange(question.id, e.target.value)}
+                            className="w-full p-2 border rounded mt-2"
+                        >
+                            <option value="">Select an option</option>
+                            {question.choices?.map((choice, index) => (
+                                <option key={index} value={choice}>{choice}</option>
+                            ))}
+                        </select>
+                    )}
+                </div>
+            ))}
             <button onClick={handleSubmit} className="bg-blue-500 text-white px-4 py-2 rounded">
                 Submit Response
             </button>

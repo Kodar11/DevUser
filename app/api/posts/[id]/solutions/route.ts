@@ -31,8 +31,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const { solutionText, solutionLink, confidenceScore } = await req.json();
   const sourceType = "USER_SUBMITTED"
   const postId = parseInt(params.id, 10);
-  //@ts-ignore
-  const userId = parseInt(session.user?.id);
+
+  const userId = session.user?.id;
 
 
   if (!solutionText || !sourceType) {

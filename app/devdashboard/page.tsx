@@ -13,7 +13,7 @@ type FormType = {
     id: number;
     questionText: string;
     answer: string;
-  }[];
+  }[]; // Optional array of responses
 };
 
 export default function DeveloperDashboard() {
@@ -23,7 +23,7 @@ export default function DeveloperDashboard() {
 
   useEffect(() => {
     if (status === "loading") return;
-    //@ts-ignore
+
     if (!session?.user || session.user.role !== "DEVELOPER") {
       router.push("/"); // Redirect unauthorized users
       return;
@@ -54,26 +54,24 @@ export default function DeveloperDashboard() {
           {forms.map((form) => (
             <div key={form.id} className="border p-4 rounded-lg bg-gray-100">
               <h2 className="text-lg font-semibold">{form.title}</h2>
-              <p className="text-sm text-gray-600">Responses: {form.responses?.length || 0}</p>
-              {
-                //@ts-ignore
+              <p className="text-sm text-gray-600">
+                Responses: {form.responses?.length ?? 0} {/* Safe check */}
+              </p>
 
-                form.responses?.length > 0 && (
-                  <div className="mt-2">
-                    {
-                      //@ts-ignore
-                      form.responses.map((response) => (
-                        <div key={response.id} className="p-2 border rounded mt-2">
-                          <p className="text-sm font-medium">
-                            <strong>Q:</strong> {response.questionText}
-                          </p>
-                          <p className="text-sm">
-                            <strong>A:</strong> {response.answer}
-                          </p>
-                        </div>
-                      ))}
-                  </div>
-                )}
+              {form.responses?.length && (
+                <div className="mt-2">
+                  {form.responses.map((response) => (
+                    <div key={response.id} className="p-2 border rounded mt-2">
+                      <p className="text-sm font-medium">
+                        <strong>Q:</strong> {response.questionText}
+                      </p>
+                      <p className="text-sm">
+                        <strong>A:</strong> {response.answer}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* ✅ View Form Button with Next.js <Link> */}
               <Link href={`/formdetails?id=${form.id}`}>
@@ -81,7 +79,6 @@ export default function DeveloperDashboard() {
                   View Form
                 </button>
               </Link>
-
             </div>
           ))}
         </div>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma/userService";
 import { getServerSession } from "next-auth/next";
 import { NEXT_AUTH_CONFIG } from "@/lib/nextAuthConfig";
-import { QuestionType } from "@prisma/client";
+
 
 export async function POST(req: Request, context: { params: { id: string } }) {
   try {
@@ -21,9 +21,8 @@ export async function POST(req: Request, context: { params: { id: string } }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //@ts-ignore
+
     const userId = session.user?.id;
-    //@ts-ignore
     const userRole = session.user?.role;
 
     console.log(`👤 User ID: ${userId}, Role: ${userRole}`);
@@ -35,7 +34,7 @@ export async function POST(req: Request, context: { params: { id: string } }) {
     }
 
     // ✅ Step 4: Convert IDs to integers
-    const userIdInt = parseInt(userId);
+
     const postIdInt = parseInt(id);
 
     if (isNaN(postIdInt)) {
@@ -43,7 +42,7 @@ export async function POST(req: Request, context: { params: { id: string } }) {
       return NextResponse.json({ error: "Invalid postId" }, { status: 400 });
     }
 
-    console.log(`🔢 Parsed Post ID: ${postIdInt}, User ID: ${userIdInt}`);
+    console.log(`🔢 Parsed Post ID: ${postIdInt}, User ID: ${userId}`);
 
     // ✅ Step 5: Parse Request Body
     const body = await req.json();
@@ -88,7 +87,7 @@ export async function POST(req: Request, context: { params: { id: string } }) {
       data: {
         title, // ✅ Ensure title is stored
         postId: postIdInt,
-        creatorId: userIdInt,
+        creatorId: userId,
         questions: {
           create: questions.map((q) => ({
             questionText: q.questionText,

@@ -14,9 +14,8 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   
-  //@ts-ignore
+
   const userId = session.user?.id;
-  const userIdInt = parseInt(userId)
   const commentId = parseInt(params.commentId, 10);
 
   if (isNaN(commentId)) {
@@ -29,7 +28,7 @@ export async function POST(
       where: { id: commentId },
       select: { userLikes: true, userDislikes: true, likes: true, dislikes: true },
     });
-    if (comment?.userLikes.includes(userIdInt)) {
+    if (comment?.userLikes.includes(userId)) {
         return NextResponse.json(
           { error: "User has already upvoted this post" },
           { status: 400 }
@@ -53,7 +52,7 @@ export async function POST(
       where: { id: commentId },
       data: {
         likes: { increment: 1 },
-        userLikes: { push: userIdInt }
+        userLikes: { push: userId }
       },
     });
 

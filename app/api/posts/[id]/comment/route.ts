@@ -11,7 +11,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  //@ts-ignore
+  
   const userId = session.user?.id;
   const postId = parseInt(params.id, 10);
   const { content } = await req.json();
@@ -28,7 +28,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       data: {
         content,
         postId,
-        commenterId: parseInt(userId, 10),
+        commenterId: userId,
       },
     });
 

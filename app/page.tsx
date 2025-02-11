@@ -1,6 +1,5 @@
 'use client';
 
-import { Appbar } from "@/components/appbar/Appbar";
 import HomePage from "@/components/home/HomePage";
 
 export default function Home() {

@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  //@ts-ignore
+
   const userId = session.user?.id;
   if (!userId) {
     return NextResponse.json({ error: "User ID not found in session" }, { status: 401 });
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
         description,
         tags: tags || [],
         status: status || "OPEN",
-        authorId: parseInt(userId),
+        authorId: userId,
       },
     });
 
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
 
 
 // Fetch all posts with comments and solutions
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const posts = await prisma.post.findMany({
       include: {

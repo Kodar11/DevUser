@@ -37,9 +37,11 @@ const SignupPage = () => {
       } else {
         setError(res.data.error || "Something went wrong");
       }
-    } catch (error: any) {
-      console.error("Signup error:", error);
-      setError(error.response?.data?.error || "Internal server error");
+    } catch (error) {
+      if(error instanceof Error){
+          console.error("Signup error:", error.message);
+          setError(error.message || "Internal server error");
+      }
     } finally {
       setLoading(false);
     }

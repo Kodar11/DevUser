@@ -63,8 +63,11 @@ const AddProblem = () => {
         status: "OPEN",
       });
       router.push("/");
-    } catch (err: any) {
-      setError(err.response?.data?.error || "An error occurred while creating the problem.");
+    } catch (err) {
+      if(err instanceof Error){
+
+        setError(err.message || "An error occurred while creating the problem.");
+      }
     } finally {
       setLoading(false);
     }

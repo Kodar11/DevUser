@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma/userService";
 import { getServerSession } from "next-auth/next";
 import { NEXT_AUTH_CONFIG } from "@/lib/nextAuthConfig";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     console.log("🔹 API Request Received: GET /api/developer/forms");
 
@@ -16,12 +16,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //@ts-ignore
-    const developerId = parseInt(session.user.id);
+    const developerId = session.user.id; // ✅ FIXED: No need for parseInt
     console.log(`👨‍💻 Developer ID: ${developerId}`);
 
     if (isNaN(developerId)) {
-      //@ts-ignore
       console.error("⛔ Invalid Developer ID:", session.user?.id);
       return NextResponse.json({ error: "Invalid developer ID" }, { status: 400 });
     }

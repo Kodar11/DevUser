@@ -16,12 +16,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //@ts-ignore
-    const developerId = parseInt(session.user.id);
+
+    const developerId = session.user.id;
     console.log(`👨‍💻 Developer ID: ${developerId}`);
 
     if (isNaN(developerId)) {
-      //@ts-ignore
       console.error("⛔ Invalid Developer ID:", session.user?.id);
       return NextResponse.json({ error: "Invalid developer ID" }, { status: 400 });
     }

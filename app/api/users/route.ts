@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const users = await prisma.user.findMany();
     return NextResponse.json({ message: "Fetched successfully", users }, { status: 200 });
@@ -62,7 +62,8 @@ export async function PATCH(req: Request) {
   }
 
   try {
-    const updatedData: any = { username, email };
+    const updatedData: { username: string; email: string; password?: string } = { username, email };
+
     if (password) {
       updatedData.password = await bcrypt.hash(password, saltRounds);
     }
@@ -78,6 +79,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
   }
 }
+
 
 export async function DELETE(req: Request) {
   const body = await req.json();

@@ -13,9 +13,8 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  //@ts-ignore
+
   const userId = session.user?.id;
-  const userIdInt = parseInt(userId)
   const commentId = parseInt(params.commentId, 10);
 
   if (isNaN(commentId)) {
@@ -33,7 +32,7 @@ export async function POST(
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
-    if (comment.userDislikes.includes(userIdInt)) {
+    if (comment.userDislikes.includes(userId)) {
       return NextResponse.json({ error: "You already disliked this comment" }, { status: 400 });
     }
 
@@ -44,7 +43,7 @@ export async function POST(
       where: { id: commentId },
       data: {
         dislikes: { increment: 1 },
-        userDislikes: { push: userIdInt }
+        userDislikes: { push: userId }
       },
     });
 

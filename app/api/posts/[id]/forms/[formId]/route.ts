@@ -16,16 +16,13 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //@ts-ignore
     const userId = session.user?.id;
-    //@ts-ignore
     const userRole = session.user?.role;
 
     if (!userId || userRole !== "DEVELOPER") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const userIdInt = parseInt(userId);
     const postIdInt = parseInt(id);
 
     if (isNaN(postIdInt)) {
@@ -33,7 +30,11 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { questions } = body;
+    const { title, questions } = body; // ✅ Extract title from request body
+
+    if (!title || typeof title !== "string") {
+      return NextResponse.json({ error: "Title is required and must be a string" }, { status: 400 });
+    }
 
     if (!questions || !Array.isArray(questions) || questions.length === 0) {
       return NextResponse.json({ error: "Invalid questions format" }, { status: 400 });
@@ -53,11 +54,12 @@ export async function POST(
         );
       }
     }
+
     const form = await prisma.requirementForm.create({
-      //@ts-ignore
       data: {
+        title, // ✅ Added title field
         postId: postIdInt,
-        creatorId: userIdInt,
+        creatorId: userId,
         questions: {
           create: questions.map((q) => ({
             questionText: q.questionText,

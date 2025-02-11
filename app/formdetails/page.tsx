@@ -38,13 +38,12 @@ export default function FormDetailsPage() {
         const { data } = await axios.get(`/api/developer/${id}`);
         console.log(data);
         setForm(data.form ?? null);
-      } catch (error: any) {
-        console.error("Error fetching form details:", error);
-        if (error.response?.status === 404) {
-          router.push("/"); // Redirect only if form is not found
-        } else {
-          setError("Failed to load form details.");
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error fetching form details:", error.message);
+          router.push("/"); 
         }
+
       } finally {
         setLoading(false);
       }

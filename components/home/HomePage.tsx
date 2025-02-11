@@ -81,7 +81,7 @@ export default function HomePage() {
 
   const handleUpvote = async (postId: number) => {
     try {
-      const { data } = await axios.post(`/api/posts/${postId}/upvote`);
+      await axios.post(`/api/posts/${postId}/upvote`);
       fetchPosts();
     } catch (error) {
       console.error("Error upvoting post:", error);

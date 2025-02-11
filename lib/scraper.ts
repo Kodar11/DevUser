@@ -31,7 +31,7 @@ function parseGoogleResults(html: string) {
   const $ = cheerio.load(html);
   const searchResults: { title: string; link: string; snippet: string }[] = [];
 
-  //@ts-ignore
+
   $("div.g").each((_, element) => {
     const title = $(element).find("h3").text();
     const link = $(element).find("a").attr("href");

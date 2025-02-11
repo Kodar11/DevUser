@@ -1,12 +1,23 @@
-import type { NextAuthOptions, User } from "next-auth";
-
+import type { NextAuthOptions, DefaultUser, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/prisma/userService";
 
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: number;
+      username: string;
+      email: string;
+      role: string;
+    } & DefaultSession["user"];
+  }
 
-interface CustomUser extends User {
-  id: string;
+  interface User extends DefaultUser {
+    id: number;
+    username: string;
+    role: string;
+  }
 }
 
 export const NEXT_AUTH_CONFIG: NextAuthOptions = {
@@ -17,7 +28,7 @@ export const NEXT_AUTH_CONFIG: NextAuthOptions = {
         email: { label: "Email", type: "text", placeholder: "Enter your email" },
         password: { label: "Password", type: "password", placeholder: "Enter your password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials) { 
         try {
           if (!credentials?.email || !credentials?.password) {
             throw new Error("Missing email or password");
@@ -37,9 +48,13 @@ export const NEXT_AUTH_CONFIG: NextAuthOptions = {
             throw new Error("Invalid password");
           }
 
-          return { id: user.id.toString(), username: user.username, email: user.email, role: user.role };
-        } catch (error: any) {
-          console.error("Authorization error:", error.message);
+          return { id: user.id, username: user.username, email: user.email, role: user.role as string };
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            console.error("Authorization error:", error.message);
+          } else {
+            console.error("Authorization error:", error);
+          }
           throw error;
         }
       },
@@ -47,34 +62,27 @@ export const NEXT_AUTH_CONFIG: NextAuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ user, token }) {
+    async jwt({ token, user}) {
       if (user) {
         token.uid = user.id;
-        //@ts-ignore
         token.username = user.username;
         token.email = user.email;
-        //@ts-ignore
-        token.role = user.role;  // ✅ Add role here
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        //@ts-ignore
-        session.user.id = token.uid;
-        //@ts-ignore
-        session.user.username = token.username;
-        session.user.email = token.email;
-        //@ts-ignore
-        session.user.role = token.role;  // ✅ Add role here
+        session.user.id = token.uid as number;
+        session.user.username = token.username as string;
+        session.user.email = token.email as string;
+        session.user.role = token.role as string;
       }
       return session;
-    }
-    ,
+    },
   },
+  
   pages: {
-    signIn: "/api/auth/login", // Custom login page
-    // signOut: "/auth/signout", // (Optional) Custom sign-out page
-    // error: "/auth/error", // (Optional) Error page
+    signIn: "/api/auth/login",
   },
 };

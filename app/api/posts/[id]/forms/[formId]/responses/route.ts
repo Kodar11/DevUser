@@ -23,12 +23,11 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //@ts-ignore
+ 
     const userId = session.user?.id;
     console.log(`👤 User ID: ${userId}`);
 
     // ✅ Step 3: Convert IDs to integers
-    const userIdInt = parseInt(userId);
     const postIdInt = parseInt(id);
     const formIdInt = parseInt(formId);
 
@@ -37,7 +36,7 @@ export async function POST(
       return NextResponse.json({ error: "Invalid postId or formId" }, { status: 400 });
     }
 
-    console.log(`🔢 Parsed Post ID: ${postIdInt}, Form ID: ${formIdInt}, User ID: ${userIdInt}`);
+    console.log(`🔢 Parsed Post ID: ${postIdInt}, Form ID: ${formIdInt}, User ID: ${userId}`);
 
     // ✅ Step 4: Parse Request Body
     const body = await req.json();
@@ -70,7 +69,7 @@ export async function POST(
     console.log("🛠 Storing Responses...");
     const createdResponses = await prisma.response.createMany({
       data: responses.map((r) => ({
-        userId: userIdInt,
+        userId: userId,
         questionId: parseInt(r.questionId),
         answer: r.answer,
         formId: formIdInt,

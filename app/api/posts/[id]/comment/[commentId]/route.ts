@@ -11,7 +11,7 @@ export async function POST(req: Request, { params }: { params: { id: string; com
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  //@ts-ignore
+
   const userId = session.user?.id;
   const parentId = parseInt(params.commentId, 10);
   const { content } = await req.json();
