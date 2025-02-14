@@ -23,23 +23,24 @@ export default function DeveloperDashboard() {
 
   useEffect(() => {
     if (status === "loading") return;
-
+  
     if (!session?.user || session.user.role !== "DEVELOPER") {
       router.push("/"); // Redirect unauthorized users
       return;
     }
-
+  
     const fetchDeveloperForms = async () => {
       try {
         const { data } = await axios.get<{ forms: FormType[] }>("/api/developer");
-        setForms(data.forms || []); // Ensure data.forms is always an array
+        setForms(data.forms || []); 
       } catch (error) {
         console.error("Error fetching developer forms:", error);
       }
     };
-
+  
     fetchDeveloperForms();
-  }, [session, status]);
+  }, [session, status, router]); 
+  
 
   if (status === "loading") return <p>Loading...</p>;
 

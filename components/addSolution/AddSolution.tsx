@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
-export default function AddSolution() {
+function SolutionForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const postId = parseInt(searchParams.get("id") || "0", 10); // Get the post ID from the URL query
@@ -74,5 +74,13 @@ export default function AddSolution() {
         </button>
       </form>
     </div>
+  );
+}
+
+export default function AddSolution() {
+  return (
+    <Suspense fallback={<p>Loading form...</p>}>
+      <SolutionForm />
+    </Suspense>
   );
 }

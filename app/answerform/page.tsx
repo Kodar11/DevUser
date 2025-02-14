@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -17,7 +17,7 @@ interface Form {
     questions: Question[];
 }
 
-export default function SubmitResponsePage() {
+function FormContent() {
     const searchParams = useSearchParams();
     const formId = searchParams.get("formId");
     const postId = searchParams.get("postId");
@@ -97,5 +97,13 @@ export default function SubmitResponsePage() {
                 Submit Response
             </button>
         </div>
+    );
+}
+
+export default function SubmitResponsePage() {
+    return (
+        <Suspense fallback={<p>Loading form...</p>}>
+            <FormContent />
+        </Suspense>
     );
 }

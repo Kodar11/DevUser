@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
-const AddProblem = () => {
+function AddProblemHere() {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -173,4 +173,10 @@ const AddProblem = () => {
   );
 };
 
-export default AddProblem;
+export default function AddProblem() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <AddProblemHere />
+    </Suspense>
+  );
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
@@ -17,10 +17,10 @@ type FormDetails = {
   }[];
 };
 
-export default function FormDetailsPage() {
+function FormDetailsPageHere() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const id = searchParams.get("id"); // ✅ Extract ID from query params
+  const id = searchParams.get("id");
 
   const [form, setForm] = useState<FormDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,14 +36,10 @@ export default function FormDetailsPage() {
     const fetchFormDetails = async () => {
       try {
         const { data } = await axios.get(`/api/developer/${id}`);
-        console.log(data);
         setForm(data.form ?? null);
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Error fetching form details:", error.message);
-          router.push("/"); 
-        }
-
+      } catch (err) {
+        console.error("Error fetching form details:", err);
+        setError("Failed to load form.");
       } finally {
         setLoading(false);
       }
@@ -52,10 +48,9 @@ export default function FormDetailsPage() {
     fetchFormDetails();
   }, [id]);
 
+  if (!id) return <p className="text-center text-red-500">Invalid form ID.</p>;
   if (loading) return <p className="text-center text-gray-600">Loading...</p>;
-
   if (error) return <p className="text-center text-red-500">{error}</p>;
-
   if (!form) return <p className="text-center text-red-500">Form not found.</p>;
 
   return (
@@ -87,5 +82,13 @@ export default function FormDetailsPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function FormDetailsPage() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <FormDetailsPageHere />
+    </Suspense>
   );
 }

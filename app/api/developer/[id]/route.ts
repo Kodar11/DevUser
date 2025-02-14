@@ -3,9 +3,12 @@ import { prisma } from "@/lib/prisma/userService";
 import { getServerSession } from "next-auth/next";
 import { NEXT_AUTH_CONFIG } from "@/lib/nextAuthConfig";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    console.log(`🔹 API Request Received: GET /api/developer/${params.id}`);
+    // Await params if wrapped in a Promise
+    const { id } = await context.params; // ✅ Awaiting params
+
+    console.log(`🔹 API Request Received: GET /api/developer/${id}`);
 
     // ✅ Fetch session
     const session = await getServerSession(NEXT_AUTH_CONFIG);
@@ -16,18 +19,15 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-
-    const developerId = session.user.id;
-    console.log(`👨‍💻 Developer ID: ${developerId}`);
-
+    const developerId = Number(session.user.id);
     if (isNaN(developerId)) {
       console.error("⛔ Invalid Developer ID:", session.user?.id);
       return NextResponse.json({ error: "Invalid developer ID" }, { status: 400 });
     }
 
-    const formId = parseInt(params.id);
+    const formId = Number(id);
     if (isNaN(formId)) {
-      console.error("⛔ Invalid Form ID:", params.id);
+      console.error("⛔ Invalid Form ID:", id);
       return NextResponse.json({ error: "Invalid form ID" }, { status: 400 });
     }
 

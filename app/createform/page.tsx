@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -10,7 +10,7 @@ type Question = {
   choices: string[]; // Ensure choices is a string array
 };
 
-export default function CreateForm() {
+function CreateFormContent() {
   const router = useRouter();
   const searchParams1 = useSearchParams();
   const id = searchParams1.get("postId");
@@ -172,5 +172,13 @@ export default function CreateForm() {
         Submit Form
       </button>
     </div>
+  );
+}
+
+export default function CreateForm() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <CreateFormContent />
+    </Suspense>
   );
 }

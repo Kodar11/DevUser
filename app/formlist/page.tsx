@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -9,7 +9,7 @@ type Form = {
   title: string;
 };
 
-export default function FormsListPage() {
+function FormsListPageHere() {
   const searchParams = useSearchParams();
   const postId = searchParams.get("postId"); // ✅ Extract postId from URL
   const router = useRouter();
@@ -18,20 +18,18 @@ export default function FormsListPage() {
 
   useEffect(() => {
     if (!postId) return; 
-
+  
     const fetchForms = async () => {
       try {
         const { data } = await axios.get(`/api/posts/${postId}/forms`); 
         setForms(data.forms || []);
-        console.log(forms);
-        
       } catch (error) {
         console.error("Error fetching forms:", error);
       }
     };
-
+  
     fetchForms();
-  }, [postId]);
+  }, [postId]); 
 
   return (
     <div className="container mx-auto p-4">
@@ -54,5 +52,13 @@ export default function FormsListPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function FormsListPage() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <FormsListPageHere />
+    </Suspense>
   );
 }

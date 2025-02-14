@@ -3,11 +3,7 @@ import { prisma } from "@/lib/prisma/userService";
 import { getServerSession } from "next-auth/next";
 import { NEXT_AUTH_CONFIG } from "@/lib/nextAuthConfig";
 
-interface Params {
-  id: string;
-}
-
-export async function GET(req: Request, { params }: { params: Params }) {
+export async function GET() {
   try {
     console.log("🔹 API Request Received: GET /api/developer/[id]");
 
