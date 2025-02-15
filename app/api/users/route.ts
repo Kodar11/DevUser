@@ -4,21 +4,27 @@ import bcrypt from "bcrypt";
 
 const saltRounds = 10;
 
+
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { username, email, password } = body;
-
-  if (!username || !email || !password) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-  }
-
   try {
+    const body = await req.json();
+    let { username, email, password, role } = body;
+
+    // Validate input fields
+    if (!username || !email || !password || !role) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Convert email to lowercase for consistency
+    email = email.toLowerCase();
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
+
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+      return NextResponse.json({ error: "User already exists" }, { status: 409 }); // 409 Conflict
     }
 
     // Hash password
@@ -30,28 +36,36 @@ export async function POST(req: Request) {
         username,
         email,
         password: hashedPassword, // Save the hashed password
+        role, // Include role
       },
     });
 
     return NextResponse.json(
-      { message: "User added successfully", user: newUser },
-      { status: 200 }
+      { message: "User added successfully", user: { id: newUser.id, email: newUser.email, role: newUser.role } },
+      { status: 201 } // 201 Created
     );
+
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json({ error: "Failed to add user" }, { status: 500 });
   }
 }
 
+
 export async function GET() {
   try {
+    console.log("Inside GET");
+
     const users = await prisma.user.findMany();
+    console.log("Fetched Users:", users); // 🔍 Debugging line
+
     return NextResponse.json({ message: "Fetched successfully", users }, { status: 200 });
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
   }
 }
+
 
 export async function PATCH(req: Request) {
   const body = await req.json();

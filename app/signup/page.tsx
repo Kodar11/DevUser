@@ -32,7 +32,7 @@ const SignupPage = () => {
         role,
       });
 
-      if (res.status === 200) {
+      if (res.status === 201) {
         router.push("/api/auth/login"); // Redirect to login page after successful signup
       } else {
         setError(res.data.error || "Something went wrong");
@@ -94,6 +94,7 @@ const SignupPage = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
             required
             className="w-full p-2 border border-gray-300 rounded-md"
           />
